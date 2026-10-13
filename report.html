@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SESD Assignment 5 — Student Attendance Tracker (Report)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --primary: #0969da;
+    --primary-dark: #054da7;
+    --text-main: #1f2328;
+    --text-muted: #57606a;
+    --bg-page: #ffffff;
+    --border-color: #d0d7de;
+    --surface-light: #f6f8fa;
+    --accent-green: #1a7f37;
+    --accent-purple: #8250df;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #eef2f6;
+    color: var(--text-main);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  /* Action Bar on top */
+  .top-action-bar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .top-action-bar h2 {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn-group { display: flex; gap: 10px; align-items: center; }
+  .btn {
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn-print { background: var(--primary); color: #fff; }
+  .btn-print:hover { background: var(--primary-dark); }
+  .btn-download { background: #fff; border-color: var(--border-color); color: var(--text-main); }
+  .btn-download:hover { background: var(--surface-light); }
+  .btn-app { background: var(--accent-green); color: #fff; }
+  .btn-app:hover { background: #116327; }
+
+  /* Document Sheet Container */
+  .doc-wrapper {
+    max-width: 960px;
+    margin: 30px auto;
+    padding-bottom: 60px;
+  }
+
+  /* Individual Page Sheet */
+  .page-sheet {
+    background: var(--bg-page);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+    border-radius: 8px;
+    padding: 48px 56px;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  /* Page Headers & Footers */
+  .page-header-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--surface-light);
+    padding-bottom: 12px;
+    margin-bottom: 28px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .page-footer-strip {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-top: 1px solid var(--surface-light);
+    padding-top: 14px;
+    margin-top: 36px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  /* Typography */
+  h1.page-title {
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--primary);
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+  }
+  h2.section-title {
+    font-size: 19px;
+    font-weight: 700;
+    color: var(--text-main);
+    margin-top: 24px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  h3.subsection-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #24292f;
+    margin-top: 16px;
+    margin-bottom: 8px;
+  }
+  p {
+    font-size: 14px;
+    color: #31373d;
+    margin-bottom: 14px;
+    text-align: justify;
+  }
+
+  /* Styled lists */
+  ul.task-list {
+    list-style: none;
+    margin: 14px 0 20px 0;
+  }
+  ul.task-list li {
+    font-size: 13.5px;
+    padding: 7px 0 7px 24px;
+    position: relative;
+    color: #24292f;
+    border-bottom: 1px dashed #f0f2f5;
+  }
+  ul.task-list li::before {
+    content: "✓";
+    position: absolute;
+    left: 4px;
+    top: 6px;
+    color: var(--primary);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  /* Screenshot Card */
+  .screenshot-figure {
+    margin: 22px 0 26px 0;
+    background: #0d1117;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  }
+  .screenshot-figure img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+  .screenshot-caption {
+    background: #ffffff;
+    padding: 10px 16px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: var(--text-muted);
+    border-top: 1px solid var(--border-color);
+    text-align: center;
+  }
+
+  /* Informational callouts */
+  .callout-box {
+    background: var(--surface-light);
+    border-left: 4px solid var(--primary);
+    padding: 14px 18px;
+    border-radius: 0 6px 6px 0;
+    margin: 16px 0;
+  }
+  .callout-box strong { color: var(--text-main); }
+  .callout-box p { margin: 0; font-size: 13.5px; }
+
+  /* Flow badge list */
+  .flow-badge-seq {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 14px 0 20px 0;
+  }
+  .flow-step {
+    background: #ddf4ff;
+    color: #0969da;
+    border: 1px solid #54aeff;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 6px 14px;
+    border-radius: 20px;
+  }
+  .flow-arrow {
+    color: var(--text-muted);
+    font-weight: 800;
+    font-size: 16px;
+  }
+
+  /* Table styling */
+  .report-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 16px 0 24px 0;
+    font-size: 13px;
+  }
+  .report-table th {
+    background: var(--surface-light);
+    color: var(--text-main);
+    padding: 10px 14px;
+    font-weight: 600;
+    text-align: left;
+    border: 1px solid var(--border-color);
+  }
+  .report-table td {
+    padding: 10px 14px;
+    border: 1px solid var(--border-color);
+    color: #24292f;
+  }
+  .report-table tr:nth-child(even) { background: #fafbfc; }
+
+  /* Print specific formatting */
+  @media print {
+    body { background: #fff !important; }
+    .top-action-bar { display: none !important; }
+    .doc-wrapper { margin: 0 !important; width: 100% !important; max-width: 100% !important; }
+    .page-sheet {
+      border: none !important;
+      box-shadow: none !important;
+      padding: 20mm 15mm !important;
+      margin: 0 !important;
+      page-break-after: always !important;
+      break-after: page !important;
+    }
+    .page-sheet:last-child { page-break-after: auto !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-action-bar">
+  <h2>
+    <span>📋</span> SESD Assignment 5 : Student Attendance Tracker
+  </h2>
+  <div class="btn-group">
+    <a href="index.html" class="btn btn-app">🚀 Open Live App</a>
+    <a href="SESD_Assignment_5_Student_Attendance_Tracker.docx" download class="btn btn-download">📥 Download Word (.docx)</a>
+    <button onclick="window.print()" class="btn btn-print">🖨️ Print / Save as PDF</button>
+  </div>
+</div>
+
+<div class="doc-wrapper">
+
+  <!-- ==================== PAGE 1 ==================== -->
+  <div class="page-sheet" id="page-1">
+    <div class="page-header-strip">
+      <span>SESD Assignment 5 : Student Attendance Tracker</span>
+      <span>Scrum & GitHub Collaboration</span>
+    </div>
+
+    <h1 class="page-title">Page 1: GitHub Collaboration</h1>
+    <h2 class="section-title">Repository Collaboration and Team Setup</h2>
+
+    <h3 class="subsection-title">Collaboration</h3>
+    <p>
+      The repository collaboration area is used to manage access and team participation in the Student Attendance Tracker project. Organization-level branch protections, review mandates, and role hierarchies ensure strict quality control throughout development. All collaborators have been assigned fine-grained access policies to streamline parallel sprint increments while maintaining software integrity.
+    </p>
+
+    <h3 class="subsection-title">Team Members</h3>
+    <p>
+      The repository contains the project team members who collaborate on development, testing, and integration across three planned Scrum sprints. Direct access permissions and branch protection rules ensure that pull requests require review before merge.
+    </p>
+
+    <div class="screenshot-figure">
+      <img src="screenshots/page1_collaboration_settings.png" alt="Repository Collaboration Settings">
+      <div class="screenshot-caption">Screenshot 1.1: Repository Collaboration and Access Management Settings</div>
+    </div>
+
+    <div class="screenshot-figure">
+      <img src="screenshots/page1_team_members.png" alt="Repository Team Members">
+      <div class="screenshot-caption">Screenshot 1.2: Repository Team Members & Scrum Module Assignments</div>
+    </div>
+
+    <div class="page-footer-strip">
+      <span>Student Attendance Tracker</span>
+      <span>Page 1 of 11</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 2 ==================== -->
+  <div class="page-sheet" id="page-2">
+    <div class="page-header-strip">
+      <span>SESD Assignment 5 : Student Attendance Tracker</span>
+      <span>Scrum & GitHub Collaboration</span>
+    </div>
+
+    <h1 class="page-title">Page 2: GitHub Project</h1>
+    <h2 class="section-title">Project Creation and Initial Board</h2>
+
+    <h3 class="subsection-title">Create Project</h3>
+    <p>
+      A GitHub Project is created for the Student Attendance Tracker. The repository issues are added to the project to organize the development tasks. Using the "Team Backlog" Scrum template, the team configures dedicated iterations (Sprints) and status views to support agile ceremonies.
+    </p>
+
+    <div class="screenshot-figure">
+      <img src="screenshots/page2_create_project.png" alt="Create GitHub Project">
+      <div class="screenshot-caption">Screenshot 2.1: Creating the GitHub Project with Team Backlog (Scrum) Template</div>
+    </div>
+
+    <h3 class="subsection-title">Initial Board</h3>
+    <p>
+      The project board provides a central place to organize issues and track their progress through different stages. The initial board structure defines empty Kanban columns for <strong>Todo</strong>, <strong>In Progress</strong>, <strong>Review</strong>, and <strong>Done</strong>, ready for backlog decomposition and sprint allocation.
+    </p>
+
+    <div class="screenshot-figure">
+      <img src="screenshots/page2_initial_board.png" alt="Initial Project Board">
+      <div class="screenshot-caption">Screenshot 2.2: Initial Project Board with Scrum Stages (Todo, In Progress, Review, Done)</div>
+    </div>
+
+    <div class="page-footer-strip">
+      <span>Student Attendance Tracker</span>
+      <span>Page 2 of 11</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 3 ==================== -->
+  <div class="page-sheet" id="page-3">
+    <div class="page-header-strip">
+      <span>SESD Assignment 5 : Student Attendance Tracker</span>
+      <span>Scrum & GitHub Collaboration</span>
+    </div>
+
+    <h1 class="page-title">Page 3: Feature Issue and Backlog</h1>
+    <h2 class="section-title">Student Attendance Management</h2>
+
+    <h3 class="subsection-title">Student Attendance</h3>
+    <p>
+      The Student Attendance feature is created as a parent issue. It defines the requirements for recording, storing, and displaying student attendance. As the umbrella epic, it unites all institutional attendance requirements into clear engineering acceptance criteria.
+    </p>
+
+    <h3 class="subsection-title">Main Requirements</h3>
+    <ul class="task-list">
+      <li>Record attendance as Present or Absent.</li>
+      <li>Store attendance date, subject/class code, and student details.</li>
+      <li>Allow authorized faculty to mark attendance with credential verification.</li>
+      <li>Display attendance records and compute percentage in real time.</li>
+      <li>Prevent duplicate attendance entries for the same student, subject, and session.</li>
+    </ul>
+
+    <h3 class="subsection-title">Feature List</h3>
+    <p>The project board contains the following main feature issues:</p>
+    <ol style="margin-left: 24px; font-size: 14px; margin-bottom: 16px; color: #24292f;">
+      <li><strong>User Login and Authentication</strong> (Issue #2)</li>
+      <li><strong>Attendance Marking</strong> (Issue #3)</li>
+      <li><strong>Attendance Reports</strong> (Issue #4)</li>
+      <li><strong>Notifications</strong> (Issue #5)</li>
+    </ol>
+
+    <div class="screenshot-figure">
+      <img src="screenshots/page3_parent_feature_issue.png" alt="Parent Feature Issue">
+      <div class="screenshot-caption">Screenshot 3.1: Parent Feature Issue #1 — Student Attendance Management</div>
+    </div>
+
+    <div class="screenshot-figure">
+      <img src="screenshots/page3_main_features_board.png" alt="Main Features on Project Board">
+      <div class="screenshot-caption">Screenshot 3.2: Main Feature Issues Organized on the Project Board Backlog</div>
+    </div>
+
+    <div class="page-footer-strip">
+      <span>Student Attendance Tracker</span>
+      <span>Page 3 of 11</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 4 ==================== -->
+  <div class="page-sheet" id="page-4">
+    <div class="page-header-strip">
+      <span>SESD Assignment 5 : Student Attendance Tracker</span>
+      <span>Scrum & GitHub Collaboration</span>
+    </div>
+
+    <h1 class="page-title">Page 4: Product Backlog</h1>
+    <p>
+      Each main feature is divided into smaller Sub-issues so that the team can implement and track the work step by step. This granular breakdown provides actionable tickets for sprint planning and estimation.
+    </p>
+
+    <h2 class="section-title">1. User Login and Authentication</h2>
+    <ul class="task-list">
+      <li>Create login page.</li>
+      <li>Add student and faculty login.</li>
+      <li>Validate username and password.</li>
+      <li>Implement role-based access.</li>
+      <li>Test login functionality.</li>
+    </ul>
+
+    <h2 class="section-title">2. Attendance Marking</h2>
+    <ul class="task-list">
+      <li>Select class or subject.</li>
+      <li>Display student list.</li>
+      <li>Mark students Present or Absent.</li>
+      <li>Save attendance records with date and session.</li>
+      <li>Prevent duplicate entries for the same session.</li>
+      <li>Test attendance marking.</li>
+    </ul>
+
+    <h2 class="section-title">3. Attendance Reports</h2>
+    <ul class="task-list">
+      <li>Retrieve attendance records from storage.</li>
+      <li>Display daily attendance summaries.</li>
+      <li>Calculate attendance percentage per student and subject.</li>
+      <li>Generate student-wise reports.</li>
+      <li>Test report generation.</li>
+    </ul>
+
+    <h2 class="section-title">4. Notifications</h2>
+    <ul class="task-list">
+      <li>Notify students about attendance updates.</li>
+      <li>Send low-attendance alerts (&lt;75% threshold).</li>
+      <li>Notify students when attendance records are updated or corrected.</li>
+      <li>Integrate notifications with attendance reports.</li>
+      <li>Test notification functionality.</li>
+    </ul>
+
+    <div class="callout-box">
+      <strong>Scrum Parent-Child Completion Rule:</strong>
+      <p>The parent issue becomes complete when its related Sub-issues are completed, tested, and reviewed via pull requests.</p>
+    </div>
+
+    <div class="page-footer-strip">
+      <span>Student Attendance Tracker</span>
+      <span>Page 4 of 11</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 5 ==================== -->
+  <div class="page-sheet" id="page-5">
+    <div class="page-header-strip">
+      <span>SESD Assignment 5 : Student Attendance Tracker</span>
+      <span>Scrum & GitHub Collaboration</span>
+    </div>
+
+    <h1 class="page-title">Page 5: Notifications Feature</h1>
+    <h2 class="section-title">Notifications and Alerts</h2>
+
+    <p>
+      The Notifications feature is planned as the fourth main product feature. It provides an automated communication loop between faculty marking actions, attendance calculations, and student awareness.
+    </p>
+
+    <h3 class="subsection-title">Notification Tasks</h3>
+    <ol style="margin-left: 24px; font-size: 14px; margin-bottom: 16px; color: #24292f;">
+      <li><strong>Attendance update notification:</strong> Sent immediately to students when attendance for a lecture session is recorded.</li>
+      <li><strong>Low-attendance alert:</strong> Automated warning banner and notification triggered when a student's attendance drops below 75%.</li>
+      <li><strong>Attendance correction notification:</strong> Sent when faculty modifies or updates a past session entry.</li>
+      <li><strong>Notification delivery status:</strong> Tracking unread badges, read status, and delivery timestamps.</li>
+      <li><strong>Notification testing:</strong> Unit, integration, and UI acceptance testing of alerts.</li>
+    </ol>
+
+    <h3 class="subsection-title">Integration</h3>
+    <p>
+      The notification module is integrated with attendance marking and attendance reports so students can receive important updates in real time without polling or manual inquiries.
+    </p>
+
+    <div class="screenshot-figure">
+      <img src="screenshots/page5_notifications_parent_issue.png" alt="Notifications Parent Issue">
+      <div class="screenshot-caption">Screenshot 5.1: Notifications Parent Issue #5 Specification & Integration Scope</div>
+    </div>
+
+    <div class="screenshot-figure">
+      <img src="screenshots/page5_notification_sub_issues.png" alt="Notification Sub-issues">
+      <div class="screenshot-caption">Screenshot 5.2: Decomposed Notification Sub-issues Linked to Parent Feature</div>
+    </div>
+
+    <div class="page-footer-strip">
+      <span>Student Attendance Tracker</span>
+      <span>Page 5 of 11</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 6 ==================== -->
+  <div class="page-sheet" id="page-6">
+    <div class="page-header-strip">
+      <span>SESD Assignment 5 : Student Attendance Tracker</span>
+      <span>Scrum & GitHub Collaboration</span>
+    </div>
+
+    <h1 class="page-title">Page 6: GitHub Project Board</h1>
+    <h2 class="section-title">Project Board and Current Iteration</h2>
+
+    <h3 class="subsection-title">Current Iteration</h3>
+    <p>
+      The current iteration groups tasks according to the team's sprint plan. Iteration 3 represents the integration phase where Attendance Reports and Notifications are connected into the core attendance engine.
+    </p>
+
+    <div class="screenshot-figure">
+      <img src="screenshots/page6_current_iteration.png" alt="Current Iteration View">
+      <div class="screenshot-caption">Screenshot 6.1: Current Iteration 3 Sprint Tracking & Velocity Progress Bar (83%)</div>
+    </div>
+
+    <h3 class="subsection-title">Workflow Stages</h3>
+    <p>The team moves tasks across four distinct Scrum workflow columns:</p>
+    <ul class="task-list">
+      <li><strong>Todo:</strong> Backlog issues groomed and estimated for current sprint pickup.</li>
+      <li><strong>In Progress:</strong> Active development in local branches with assigned developers.</li>
+      <li><strong>Review:</strong> Pull requests submitted; peer code review and automated checks underway.</li>
+      <li><strong>Done:</strong> Code verified, merged to main branch, and verified against acceptance criteria.</li>
+    </ul>
+
+    <h3 class="subsection-title">Purpose</h3>
+    <p>
+      The project board provides a visual view of completed work, ongoing tasks, and remaining work. It promotes transparency and keeps all team members aligned with sprint velocity and blockers.
+    </p>
+
+    <div class="screenshot-figure">
+      <img src="screenshots/page6_project_board_status.png" alt="Project Board Showing Issue Status">
+      <div class="screenshot-caption">Screenshot 6.2: GitHub Project Board Displaying Issues Distributed Across Scrum Stages</div>
+    </div>
+
+    <div class="page-footer-strip">
+      <span>Student Attendance Tracker</span>
+      <span>Page 6 of 11</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 7 ==================== -->
+  <div class="page-sheet" id="page-7">
+    <div class="page-header-strip">
+      <span>SESD Assignment 5 : Student Attendance Tracker</span>
+      <span>Scrum & GitHub Collaboration</span>
+    </div>
+
+    <h1 class="page-title">Page 7: About the Project</h1>
+    <h2 class="section-title">Student Attendance Tracker</h2>
+
+    <p>
+      The Student Attendance Tracker is a Scrum-based software project designed to simplify attendance management in an educational institution. It allows faculty to mark attendance, students to view their attendance percentage, and the system to generate reports and notifications.
+    </p>
+
+    <h2 class="section-title">Team Responsibilities</h2>
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Scrum Team Member</th>
+          <th>Primary Module Responsibility</th>
+          <th>Sprint Deliverable</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>manukanta</strong></td>
+          <td>User Login and Authentication</td>
+          <td>Sprint 1 Lead</td>
+        </tr>
+        <tr>
+          <td><strong>umender</strong></td>
+          <td>Attendance Marking</td>
+          <td>Sprint 2 Lead</td>
+        </tr>
+        <tr>
+          <td><strong>jagan</strong></td>
+          <td>Attendance Reports</td>
+          <td>Sprint 3 Deliverable</td>
+        </tr>
+        <tr>
+          <td><strong>sai ram</strong></td>
+          <td>Notifications</td>
+          <td>Sprint 3 Deliverable</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2 class="section-title">Product Goal</h2>
+    <div class="flow-badge-seq">
+      <span class="flow-step">Login</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Mark Attendance</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">View Attendance Reports</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Receive Notifications</span>
+    </div>
+
+    <h2 class="section-title">How the Team Is Developing It</h2>
+    <div class="flow-badge-seq">
+      <span class="flow-step" style="background:#f0fdf4; color:#15803d; border-color:#86efac;">Product Backlog</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Sprint Planning</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Sprint</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Daily Scrum</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Development</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Sprint Review</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Sprint Retrospective</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step" style="background:#fdf4ff; color:#a21caf; border-color:#f0abfc;">Next Sprint</span>
+    </div>
+
+    <div class="callout-box">
+      <strong>Scrum Rationale:</strong>
+      <p>Using Scrum enables iterative delivery of user-visible increments at each sprint boundary, allowing the team to test, validate, and adapt features before full deployment.</p>
+    </div>
+
+    <div class="page-footer-strip">
+      <span>Student Attendance Tracker</span>
+      <span>Page 7 of 11</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 8 ==================== -->
+  <div class="page-sheet" id="page-8">
+    <div class="page-header-strip">
+      <span>SESD Assignment 5 : Student Attendance Tracker</span>
+      <span>Scrum & GitHub Collaboration</span>
+    </div>
+
+    <h1 class="page-title">Page 8: Sprint 1 — User Login and Authentication</h1>
+    
+    <div class="callout-box" style="border-left-color: #0969da;">
+      <strong>Assigned Member:</strong> Vamshi (with manukanta)
+    </div>
+
+    <h2 class="section-title">Sprint Tasks</h2>
+    <ol style="margin-left: 24px; font-size: 14px; margin-bottom: 16px; color: #24292f;">
+      <li><strong>Design the login page:</strong> Create a responsive, intuitive interface for students and faculty.</li>
+      <li><strong>Implement student and faculty login:</strong> Support separate credential paths and roles.</li>
+      <li><strong>Validate login credentials:</strong> Enforce format checks, error messaging, and password security.</li>
+      <li><strong>Add role-based access:</strong> Route faculty to marking and analytics dashboards; route students to personal attendance and alerts.</li>
+      <li><strong>Test login functionality:</strong> Execute automated unit tests and manual cross-device testing.</li>
+    </ol>
+
+    <h2 class="section-title">Sprint Goal</h2>
+    <p>
+      Allow authorized students and faculty to log in to the Student Attendance Tracker with secure, differentiated roles and protected session management.
+    </p>
+
+    <h2 class="section-title">Sprint 1 Output</h2>
+    <p>
+      A working authentication module that provides secure access to the attendance system. The module reliably identifies users, initializes session tokens, verifies institutional roles, and prevents unauthorized access to faculty functions.
+    </p>
+
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Deliverable</th>
+          <th>Acceptance Criteria</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Login Interface</td>
+          <td>Responsive UI with role selection and input validation</td>
+          <td><span style="color:var(--accent-green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+          <td>Role Authentication</td>
+          <td>Students restricted from faculty attendance modification</td>
+          <td><span style="color:var(--accent-green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+          <td>Session State</td>
+          <td>User remains logged in across views with secure logout</td>
+          <td><span style="color:var(--accent-green); font-weight:700;">PASSED</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="page-footer-strip">
+      <span>Student Attendance Tracker</span>
+      <span>Page 8 of 11</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 9 ==================== -->
+  <div class="page-sheet" id="page-9">
+    <div class="page-header-strip">
+      <span>SESD Assignment 5 : Student Attendance Tracker</span>
+      <span>Scrum & GitHub Collaboration</span>
+    </div>
+
+    <h1 class="page-title">Page 9: Sprint 2 — Attendance Marking</h1>
+    
+    <div class="callout-box" style="border-left-color: #1a7f37;">
+      <strong>Assigned Member:</strong> Eswar (with umender)
+    </div>
+
+    <h2 class="section-title">Sprint Tasks</h2>
+    <ol style="margin-left: 24px; font-size: 14px; margin-bottom: 16px; color: #24292f;">
+      <li><strong>Select class or subject:</strong> Dropdown to filter active academic courses and sections.</li>
+      <li><strong>Display the student list:</strong> Dynamic roster of enrolled students with roll numbers and names.</li>
+      <li><strong>Mark attendance as Present or Absent:</strong> Interactive toggle switches and batch actions ("Mark All Present").</li>
+      <li><strong>Save attendance records with the date:</strong> Persist record timestamp, subject code, faculty identifier, and roster status.</li>
+      <li><strong>Prevent duplicate entries:</strong> Automated validation preventing duplicate attendance entries for the same student and session.</li>
+      <li><strong>Test attendance marking:</strong> Verify boundary cases, offline persistence, and submission integrity.</li>
+    </ol>
+
+    <h2 class="section-title">Sprint Goal</h2>
+    <p>
+      Allow faculty to record student attendance accurately and efficiently with real-time roster rendering and duplicate entry safeguards.
+    </p>
+
+    <h2 class="section-title">Sprint 2 Output</h2>
+    <p>
+      A working attendance-marking module that stores attendance records for report generation. Faculty members can record morning/afternoon sessions in under 30 seconds with immediate persistence.
+    </p>
+
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th>Deliverable</th>
+          <th>Acceptance Criteria</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Roster Selection</td>
+          <td>Dynamically populates student list based on selected course</td>
+          <td><span style="color:var(--accent-green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+          <td>Batch & Individual Marking</td>
+          <td>Quick-toggle Present/Absent for entire section or individual students</td>
+          <td><span style="color:var(--accent-green); font-weight:700;">PASSED</span></td>
+        </tr>
+        <tr>
+          <td>Duplicate Protection</td>
+          <td>Warns and halts duplicate marking for identical subject + date + slot</td>
+          <td><span style="color:var(--accent-green); font-weight:700;">PASSED</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="page-footer-strip">
+      <span>Student Attendance Tracker</span>
+      <span>Page 9 of 11</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 10 ==================== -->
+  <div class="page-sheet" id="page-10">
+    <div class="page-header-strip">
+      <span>SESD Assignment 5 : Student Attendance Tracker</span>
+      <span>Scrum & GitHub Collaboration</span>
+    </div>
+
+    <h1 class="page-title">Page 10: Sprint 3 — Reports, Notifications and Integration</h1>
+
+    <h2 class="section-title">Attendance Reports — Rishikesh (with jagan)</h2>
+    <ul class="task-list">
+      <li><strong>Retrieve attendance records:</strong> Efficient querying of historical records across dates and subjects.</li>
+      <li><strong>Display daily attendance:</strong> Daily summary breakdowns showing attendance counts and percentages.</li>
+      <li><strong>Calculate attendance percentage:</strong> Real-time formula <code>(Classes Attended / Total Held) × 100</code>.</li>
+      <li><strong>Generate student-wise reports:</strong> Individual progress cards highlighting attendance safety margin.</li>
+      <li><strong>Test report generation:</strong> Validation of zero-session edge cases and data export accuracy.</li>
+    </ul>
+
+    <h2 class="section-title">Notifications — Nithish and Entire Team (with sai ram)</h2>
+    <ul class="task-list">
+      <li><strong>Send attendance update notifications:</strong> Trigger alert when faculty marks daily class.</li>
+      <li><strong>Generate low-attendance alerts:</strong> Proactive notification when cumulative attendance falls below 75%.</li>
+      <li><strong>Notify students about attendance corrections:</strong> Immediate notification upon record modifications.</li>
+      <li><strong>Test notifications:</strong> Delivery testing, timestamp validation, and mark-as-read functionality.</li>
+      <li><strong>Integrate all modules:</strong> Connect Authentication (Sprint 1), Marking (Sprint 2), and Reports & Alerts (Sprint 3).</li>
+    </ul>
+
+    <h2 class="section-title">Sprint Goal</h2>
+    <p>
+      Connect authentication, attendance marking, reports, and notifications to produce a complete Student Attendance Tracker.
+    </p>
+
+    <h2 class="section-title">Sprint 3 Output</h2>
+    <p>
+      An integrated system that allows users to log in, manage attendance, view reports, and receive notifications seamlessly.
+    </p>
+
+    <div class="page-footer-strip">
+      <span>Student Attendance Tracker</span>
+      <span>Page 10 of 11</span>
+    </div>
+  </div>
+
+  <!-- ==================== PAGE 11 ==================== -->
+  <div class="page-sheet" id="page-11">
+    <div class="page-header-strip">
+      <span>SESD Assignment 5 : Student Attendance Tracker</span>
+      <span>Scrum & GitHub Collaboration</span>
+    </div>
+
+    <h1 class="page-title">Page 11: GitHub Workflow and Final Progress</h1>
+
+    <h2 class="section-title">GitHub Workflow</h2>
+    <div class="flow-badge-seq">
+      <span class="flow-step">Issues</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Sub-issues</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Todo</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">In Progress</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step">Review</span>
+      <span class="flow-arrow">→</span>
+      <span class="flow-step" style="background:#f0fdf4; color:#15803d; border-color:#86efac;">Done</span>
+    </div>
+
+    <h2 class="section-title">Scrum Activities</h2>
+    <div style="margin: 16px 0;">
+      <div style="margin-bottom: 12px;">
+        <strong>Daily Scrum:</strong> Team members discuss completed work, planned work, and blockers in short 15-minute syncs.
+      </div>
+      <div style="margin-bottom: 12px;">
+        <strong>Sprint Review:</strong> The team demonstrates the features completed during the sprint to institutional stakeholders.
+      </div>
+      <div style="margin-bottom: 12px;">
+        <strong>Sprint Retrospective:</strong> The team discusses what went well, what went wrong, and what can be improved for the next iteration.
+      </div>
+    </div>
+
+    <h2 class="section-title">Final Progress Progression</h2>
+    <div style="background: var(--surface-light); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; text-align: center; margin: 20px 0;">
+      <div style="font-weight: 700; color: #0969da; font-size: 15px;">Sprint 1: User Login and Authentication</div>
+      <div style="font-size: 18px; margin: 6px 0; color: var(--text-muted);">↓</div>
+      <div style="font-weight: 700; color: #1a7f37; font-size: 15px;">Sprint 2: Attendance Marking</div>
+      <div style="font-size: 18px; margin: 6px 0; color: var(--text-muted);">↓</div>
+      <div style="font-weight: 700; color: #8250df; font-size: 15px;">Sprint 3: Attendance Reports + Notifications + Integration</div>
+      <div style="font-size: 18px; margin: 6px 0; color: var(--text-muted);">↓</div>
+      <div style="font-weight: 800; color: #24292f; font-size: 18px; margin-top: 8px;">Final Student Attendance Tracker Application</div>
+    </div>
+
+    <h2 class="section-title">Conclusion</h2>
+    <p>
+      The Student Attendance Tracker uses Scrum practices and GitHub collaboration tools to organize and monitor software development. GitHub Issues, Sub-issues, Iterations, Project Board, commits, and pull requests help the team track tasks and work together efficiently. Through three focused sprints, the team transformed institutional requirements into a responsive, dependable, and user-centric web platform.
+    </p>
+
+    <div class="page-footer-strip">
+      <span>Student Attendance Tracker</span>
+      <span>Page 11 of 11</span>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>

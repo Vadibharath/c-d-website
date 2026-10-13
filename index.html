@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Attendance Tracker — SESD Assignment 5</title>
+  <meta name="description" content="Scrum-based Student Attendance Tracker with role authentication, attendance marking, report analytics, and notification alerts.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- App Header -->
+  <header class="app-header">
+    <div class="brand-section">
+      <div class="brand-logo-icon">📊</div>
+      <div class="brand-text">
+        <h1>Student Attendance Tracker</h1>
+        <p>SESD SCRUM PROJECT · ACADEMIC PORTAL</p>
+      </div>
+    </div>
+
+    <!-- Navigation Pills -->
+    <nav class="nav-pills">
+      <button class="nav-pill active" data-tab="marking">
+        <span>✏️</span> Mark Attendance
+      </button>
+      <button class="nav-pill" data-tab="reports">
+        <span>📈</span> Attendance Reports
+      </button>
+      <button class="nav-pill" data-tab="notifications">
+        <span>🔔</span> Notifications
+      </button>
+      <button class="nav-pill" data-tab="showcase" style="border-left: 1px solid var(--border-subtle); margin-left: 4px;">
+        <span>📋</span> Assignment 5 Showcase
+      </button>
+    </nav>
+
+    <!-- Header Right User Controls -->
+    <div class="header-actions">
+      <!-- Notification Trigger -->
+      <div class="notification-trigger" id="notificationTrigger" title="View Notifications">
+        <span>🔔</span>
+        <span class="notification-badge" id="notifBadgeCount">2</span>
+      </div>
+
+      <!-- User Profile Badge & Switcher -->
+      <div class="user-profile-badge" id="roleSwitcherBtn" title="Click to Switch Role (Faculty / Student)">
+        <div class="user-avatar" id="userAvatarBadge">KS</div>
+        <div class="user-info-text">
+          <div class="user-info-name" id="userNameBadge">Dr. K. Sharma</div>
+          <div class="user-info-role" id="userRoleBadge">Faculty · Authorized</div>
+        </div>
+        <span style="font-size: 11px; color: var(--text-dim); margin-left: 4px;">⇄</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main App Container -->
+  <main class="app-container">
+
+    <!-- ==================== TAB 1: MARK ATTENDANCE ==================== -->
+    <section class="tab-pane active" id="tab-marking">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title"><span>📝</span> Mark Daily Attendance</h2>
+            <div class="card-subtitle">Select class, date, and session slot to record student attendance roster.</div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-secondary btn-sm" id="btnMarkAllPresent">✓ All Present</button>
+            <button class="btn btn-secondary btn-sm" id="btnMarkAllAbsent">✗ All Absent</button>
+          </div>
+        </div>
+
+        <!-- Marking Session Filter Form -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-bottom: 24px; background: var(--bg-input); padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+          <div class="form-group" style="margin: 0;">
+            <label class="form-label" for="markingCourseSelect">Course / Subject</label>
+            <select class="form-select" id="markingCourseSelect">
+              <option value="CS301">CS301 — Software Engineering & System Design</option>
+              <option value="CS201">CS201 — Data Structures & Algorithms</option>
+              <option value="CS302">CS302 — Web Technologies</option>
+              <option value="CS303">CS303 — Database Management Systems</option>
+            </select>
+          </div>
+
+          <div class="form-group" style="margin: 0;">
+            <label class="form-label" for="markingDateInput">Session Date</label>
+            <input type="date" class="form-control" id="markingDateInput">
+          </div>
+
+          <div class="form-group" style="margin: 0;">
+            <label class="form-label" for="markingSlotSelect">Session Slot</label>
+            <select class="form-select" id="markingSlotSelect">
+              <option value="Morning Slot (09:30 AM)">Morning Slot (09:30 AM - 10:30 AM)</option>
+              <option value="Afternoon Slot (02:00 PM)">Afternoon Slot (02:00 PM - 03:00 PM)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Attendance Student Roster -->
+        <div style="overflow-x: auto;">
+          <table class="roster-table">
+            <thead>
+              <tr>
+                <th>Enrolled Student</th>
+                <th>Roll Number</th>
+                <th>Attendance Status</th>
+              </tr>
+            </thead>
+            <tbody id="markingRosterBody">
+              <!-- Dynamically populated by app.js -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Save Actions & Duplicate Check Alert -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 24px; padding-top: 20px; border-top: 1px solid var(--border-subtle);">
+          <div style="font-size: 13px; color: var(--text-dim); display: flex; align-items: center; gap: 8px;">
+            <span>🛡️</span>
+            <span>Duplicate protection active. System prevents duplicate entries for the same course and session.</span>
+          </div>
+          <button class="btn btn-primary" id="btnSaveAttendance">
+            <span>💾</span> Save &amp; Dispatch Attendance
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 2: ATTENDANCE REPORTS ==================== -->
+    <section class="tab-pane" id="tab-reports">
+      <!-- Metric Highlights -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">📚</div>
+          <div class="stat-info">
+            <div class="stat-value" id="metricTotalClasses">0</div>
+            <div class="stat-label">Total Sessions Conducted</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">📊</div>
+          <div class="stat-info">
+            <div class="stat-value" id="metricAvgPercentage">0%</div>
+            <div class="stat-label">Institutional Attendance Avg</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">⚠️</div>
+          <div class="stat-info">
+            <div class="stat-value" id="metricShortageCount">0</div>
+            <div class="stat-label">Students in Shortage (&lt;75%)</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">⭐</div>
+          <div class="stat-info">
+            <div class="stat-value" id="metricStarCount">0</div>
+            <div class="stat-label">High Attendance Stars (≥90%)</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Student Attendance Analytics Table -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title"><span>📑</span> Student-wise Attendance Reports</h2>
+            <div class="card-subtitle">Detailed breakdown of sessions held, sessions attended, and calculated percentages.</div>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary btn-sm" id="btnExportCSV">📥 Export CSV</button>
+            <button class="btn btn-secondary btn-sm" onclick="window.print()">🖨️ Print Report</button>
+          </div>
+        </div>
+
+        <!-- Filter Controls -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 14px; margin-bottom: 20px;">
+          <div>
+            <input type="text" class="form-control" id="reportSearchInput" placeholder="🔍 Search student name or roll number...">
+          </div>
+          <div>
+            <select class="form-select" id="reportCourseFilter">
+              <option value="ALL">All Subjects</option>
+              <option value="CS301">CS301 (SESD)</option>
+              <option value="CS201">CS201 (Data Structures)</option>
+              <option value="CS302">CS302 (Web Tech)</option>
+              <option value="CS303">CS303 (DBMS)</option>
+            </select>
+          </div>
+          <div>
+            <select class="form-select" id="reportStudentFilter">
+              <option value="ALL">All Students</option>
+              <option value="23CS01">Vamshi (23CS01)</option>
+              <option value="23CS02">Eswar (23CS02)</option>
+              <option value="23CS03">Rishikesh (23CS03)</option>
+              <option value="23CS04">Nithish (23CS04)</option>
+              <option value="23CS05">Bharath (23CS05)</option>
+              <option value="23CS06">Manukanta (23CS06)</option>
+              <option value="23CS07">Umender (23CS07)</option>
+              <option value="23CS08">Jagan (23CS08)</option>
+              <option value="23CS09">Sai Ram (23CS09)</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Table View -->
+        <div style="overflow-x: auto;">
+          <table class="roster-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Sessions Held</th>
+                <th>Attended</th>
+                <th>Absent</th>
+                <th>Attendance %</th>
+                <th>Threshold Status</th>
+              </tr>
+            </thead>
+            <tbody id="studentReportsTableBody">
+              <!-- Dynamically populated by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Recent Daily Attendance Log -->
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title"><span>🕒</span> Daily Attendance Activity Log</h2>
+            <div class="card-subtitle">Historical log of recently recorded sessions across all courses.</div>
+          </div>
+        </div>
+        <div style="overflow-x: auto;">
+          <table class="roster-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Course</th>
+                <th>Session Slot</th>
+                <th>Marked By Faculty</th>
+                <th>Attendance Count</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="dailyHistoryTableBody">
+              <!-- Dynamically populated by app.js -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 3: NOTIFICATIONS ==================== -->
+    <section class="tab-pane" id="tab-notifications">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title"><span>🔔</span> Notifications &amp; Alert Center</h2>
+            <div class="card-subtitle">Real-time alerts for attendance updates, low attendance (&lt;75%), and record rectifications.</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" id="btnMarkAllRead">✓ Mark All as Read</button>
+        </div>
+
+        <div id="notificationsListContainer">
+          <!-- Dynamically populated by app.js -->
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== TAB 4: ASSIGNMENT 5 SHOWCASE ==================== -->
+    <section class="tab-pane" id="tab-showcase">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title"><span>📘</span> SESD Assignment 5 — Scrum &amp; GitHub Documentation</h2>
+            <div class="card-subtitle">Interactive 11-page showcase with realistic GitHub screenshots, Scrum sprints, and artifacts.</div>
+          </div>
+          <div style="display: flex; gap: 10px;">
+            <a href="report.html" target="_blank" class="btn btn-secondary btn-sm">🖨️ Standalone Printable Report</a>
+            <a href="SESD_Assignment_5_Student_Attendance_Tracker.docx" download class="btn btn-primary btn-sm">📥 Download Word (.docx)</a>
+          </div>
+        </div>
+
+        <!-- 11 Page Stepper Navigation -->
+        <div class="showcase-nav">
+          <button class="showcase-step-btn active" data-page="1">Page 1: Collaboration</button>
+          <button class="showcase-step-btn" data-page="2">Page 2: GitHub Project</button>
+          <button class="showcase-step-btn" data-page="3">Page 3: Feature Issue</button>
+          <button class="showcase-step-btn" data-page="4">Page 4: Product Backlog</button>
+          <button class="showcase-step-btn" data-page="5">Page 5: Notifications</button>
+          <button class="showcase-step-btn" data-page="6">Page 6: Project Board</button>
+          <button class="showcase-step-btn" data-page="7">Page 7: About Project</button>
+          <button class="showcase-step-btn" data-page="8">Page 8: Sprint 1 (Auth)</button>
+          <button class="showcase-step-btn" data-page="9">Page 9: Sprint 2 (Marking)</button>
+          <button class="showcase-step-btn" data-page="10">Page 10: Sprint 3 (Reports)</button>
+          <button class="showcase-step-btn" data-page="11">Page 11: Final Progress</button>
+        </div>
+
+        <!-- Dynamic Page Display -->
+        <div id="showcasePageDisplay">
+          <!-- Populated by app.js -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Duplicate Attendance Modal -->
+  <div class="modal-overlay" id="duplicateModal">
+    <div class="modal-container">
+      <div class="modal-header">
+        <div class="modal-title">
+          <span>⚠️</span> Duplicate Entry Detected
+        </div>
+        <button class="modal-close" onclick="window.attendanceApp.closeModal('duplicateModal')">✕</button>
+      </div>
+      <div id="duplicateModalDesc" style="color: var(--text-muted); font-size: 14px; margin-bottom: 20px; line-height: 1.6;">
+        Attendance has already been recorded for this session.
+      </div>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn btn-secondary" onclick="window.attendanceApp.closeModal('duplicateModal')">Cancel</button>
+        <button class="btn btn-primary" id="btnOverwriteAttendance">Update / Correct Record</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <!-- App Footer -->
+  <footer class="app-footer">
+    <div>
+      <strong>SESD Assignment 5</strong> · Student Attendance Tracker · Developed with Scrum Methodology
+    </div>
+    <div>
+      Repository: <code>Vadibharath/student-attendance-tracker</code>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
