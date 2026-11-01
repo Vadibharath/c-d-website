@@ -1,0 +1,4 @@
+const router=require("express").Router(); const Budget=require("../models/Budget");
+router.get("/:month",async(req,res)=>{if(!/^\d{4}-\d{2}$/.test(req.params.month))return res.status(400).json({message:"Month must be YYYY-MM."});const b=await Budget.findOne({user:req.user._id,month:req.params.month});res.json(b||{month:req.params.month,amount:0,dailyLimit:0});});
+router.put("/:month",async(req,res)=>{try{const amount=Number(req.body.amount),dailyLimit=Number(req.body.dailyLimit||0);if(!/^\d{4}-\d{2}$/.test(req.params.month)||!Number.isFinite(amount)||amount<=0||!Number.isFinite(dailyLimit)||dailyLimit<0)return res.status(400).json({message:"Enter a valid monthly budget and daily limit."});const b=await Budget.findOneAndUpdate({user:req.user._id,month:req.params.month},{$set:{amount,dailyLimit}},{new:true,upsert:true,runValidators:true});res.json(b);}catch(_e){res.status(500).json({message:"Could not save budget."});}});
+module.exports=router;
